@@ -14,6 +14,15 @@ options = webdriver.ChromeOptions()
 driver = webdriver.Chrome(options=options)
 
 def login_to_main_page(driver):
+    """
+    It will login to the main page of pm poshan website
+    
+    Parameters:
+    driver (obj): The webdriver object
+    
+    Returns:
+    None
+    """
     user = os.getenv('USER')
     pwd = os.getenv('PWD')
     url = 'https://pmposhan.wb.gov.in/login'
@@ -38,6 +47,15 @@ def login_to_main_page(driver):
             break
 
 def open_attendance_page(driver):
+    """
+    This function opens the attendance page by getting the specific url and clicking on it
+    
+    Parameters:
+    driver (obj): The webdriver object
+    
+    Returns:
+    None
+    """
     url = "https://pmposhan.wb.gov.in/blockwise_summary_report?district_code=a7c812f386d5eaf61ed5e704fec8dc8c518ed84eb37cfb8b3c58b6afd8fed3f229b90c92ef3b80f2a9633e46b6b0c84c326ce916013b061afed4e19d2e609235nQlAXMxntoJ45ZdU0ImGcl7TRIoMwrMeQiVlUOpksOk%3D"
     # find url and click
     driver.get(url)
@@ -45,6 +63,20 @@ def open_attendance_page(driver):
 
 def accept_all_application(driver):
     # Find the table element by its ID
+    """
+    This function finds the table element by its ID, finds all rows in the table, 
+    and iterates through each row to get the value of the 5th td element. It then
+    checks if the row has at least 5 td elements and if the value of the 5th td element
+    is not equal to 0. If the condition is met, it clicks on the 7th td element which
+    is a link to the application details page. It then clicks on the back button to go
+    back to the blockwise summary report page.
+
+    Parameters:
+    driver (obj): The webdriver object
+
+    Returns:
+    None
+    """
     _table = driver.find_element(By.ID, "example")
     print('_table')
     # Find all rows in the table
@@ -122,33 +154,52 @@ block_rows = None
 
     
 def find_school(driver):
+    
+
+    """
+    This function finds the table element by its ID, finds all rows in the table, 
+    and iterates through each row to get the value of the 5th td element. It then
+    checks if the row has at least 5 td elements and if the value of the 5th td element
+    is greater than 0. If the condition is met, it clicks on the 4th td element which
+    is a link to the school details page. It then clicks on the back button to go
+    back to the blockwise summary report page.
+
+    Parameters:
+    driver (obj): The webdriver object
+
+    Returns:
+    None
+    """
     total = 0
-    while True:
-        try:
-            block_table = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "example")))
-            block_rows = block_table.find_elements(By.TAG_NAME, "tr")
+    
+    try:
+        block_table = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "example")))
+        block_rows = block_table.find_elements(By.TAG_NAME, "tr")
 
-            for _row in block_rows:
-                cells_ = _row.find_elements(By.TAG_NAME, "td")
-
-                if len(cells_) >= 5:
-                    fifth_td_value = int(cells_[4].text)
-
-                    if fifth_td_value > 0:
-                        cells_[4].click()
-                        try:
-                            accept_all_application(driver)
-                        except Exception as e:
-                            print("Error in accept_all_application:", e)
-                        time.sleep(3)
-        except Exception as e:
-            print("Error in find_school:", e)
-            break
-        else:
+        for _row in block_rows:
+            cells_ = _row.find_elements(By.TAG_NAME, "td")
             total += 1
-            print(f"Total attempts: {total}")
-            if total == 50:
-                break
+            if len(cells_) >= 5:
+                fifth_td_value = int(cells_[4].text)
+
+                if fifth_td_value > 0:
+                    cells_[4].click()
+                    try:
+                        accept_all_application(driver)
+                        if total > 50:
+                            driver.quit()
+                        find_school(driver)
+                    except Exception as e:
+                        print("Error in accept_all_application:", e)
+                    time.sleep(3)
+    except Exception as e:
+        print("Error in find_school:", e)
+        
+    else:
+        total += 1
+        print(f"Total attempts: {total}")
+        if total == 50:
+            driver.quit()
 
 
 

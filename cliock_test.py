@@ -11,7 +11,7 @@ def clickable():
     # pyautogui.click()
 
     x = 880
-    y = 510
+    y = 530
     # Move cursor to (x, y) coordinates and click
     pyautogui.moveTo(x, y, duration=1)  # Replace x and y with desired coordinates
     pyautogui.click()
